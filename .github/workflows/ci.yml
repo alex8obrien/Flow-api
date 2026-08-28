@@ -1,0 +1,49 @@
+name: Build & Test
+
+on:
+  push:
+
+jobs:
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: ./go.mod
+          cache-dependency-path: ./go.sum
+
+      - name: Install dependencies
+        run: go mod download & go mod verify
+
+      - name: Build
+        run: go build ./...
+
+      - name: Coverage Testing
+        run: go test --cover ./...
+
+  analysis:
+    name: Lint & Scanning
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: ./go.mod
+          cache-dependency-path: ./go.sum
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v9
+
+      - name: Vulnerability Check
+        run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
