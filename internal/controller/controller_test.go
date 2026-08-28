@@ -15,8 +15,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TODO: Design better echo integration with controller test
-
 var e *echo.Echo
 
 func TestMain(m *testing.M) {

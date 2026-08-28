@@ -35,7 +35,7 @@ func InitServer(cfg Config) *echo.Echo {
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
-	e.Use(middleware.RequestLogger()) // TODO: Replace with RequestLoggerWithConfig
+	e.Use(middleware.RequestLogger())
 	e.Use(cfg.OtelMiddleware)
 	e.Use(middleware.SecureWithConfig(middleware.SecureConfig{
 		XSSProtection:         "1; mode=block",
@@ -45,7 +45,6 @@ func InitServer(cfg Config) *echo.Echo {
 		HSTSPreloadEnabled:    true,
 		ContentSecurityPolicy: "default-src 'self'",
 	}))
-	// TODO: Add rate limit middleware
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rateLimit)))
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: cfg.Origins,
@@ -53,8 +52,6 @@ func InitServer(cfg Config) *echo.Echo {
 		AllowMethods: []string{http.MethodOptions, http.MethodGet, http.MethodPost},
 		MaxAge:       accessControlMaxAge,
 	}))
-	// TODO: Add CSRF
-	// e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{}))
 	e.Use(middleware.BodyLimit(bodyLimit)) // 2MB body limit
 	e.Use(middleware.Gzip())
 
