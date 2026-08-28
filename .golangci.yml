@@ -23,7 +23,7 @@ formatters:
     gci:
       sections:
         - standard # Standard section: captures all standard packages.
-        - prefix(github.com/alex8obrien/echo-v5-template) # Custom section: groups all imports with the specified Prefix.
+        - prefix(github.com/alex8obrien/flow) # Custom section: groups all imports with the specified Prefix.
         - default # Default section: contains all imports that could not be matched to another section type.
 
       no-inline-comments: true

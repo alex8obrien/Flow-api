@@ -9,14 +9,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/alex8obrien/echo-v5-template/internal/controller"
-	"github.com/alex8obrien/echo-v5-template/internal/db"
-	"github.com/alex8obrien/echo-v5-template/internal/environment"
-	"github.com/alex8obrien/echo-v5-template/internal/logger"
-	"github.com/alex8obrien/echo-v5-template/internal/repository"
-	"github.com/alex8obrien/echo-v5-template/internal/server"
-	"github.com/alex8obrien/echo-v5-template/internal/service"
-	"github.com/alex8obrien/echo-v5-template/internal/telemetry/otel"
+	"github.com/alex8obrien/flow/internal/controller"
+	"github.com/alex8obrien/flow/internal/db"
+	"github.com/alex8obrien/flow/internal/environment"
+	"github.com/alex8obrien/flow/internal/logger"
+	"github.com/alex8obrien/flow/internal/repository"
+	"github.com/alex8obrien/flow/internal/server"
+	"github.com/alex8obrien/flow/internal/service"
+	"github.com/alex8obrien/flow/internal/telemetry/otel"
 )
 
 const timeout = 5 * time.Second

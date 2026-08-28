@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alex8obrien/echo-v5-template/internal/logger"
+	"github.com/alex8obrien/flow/internal/logger"
 
 	"github.com/stretchr/testify/assert"
 )

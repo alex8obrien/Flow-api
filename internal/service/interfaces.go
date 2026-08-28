@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/alex8obrien/echo-v5-template/internal/domain"
+	"github.com/alex8obrien/flow/internal/domain"
 )
 
 type LinkRepository interface {

@@ -3,7 +3,7 @@ package util_test
 import (
 	"testing"
 
-	"github.com/alex8obrien/echo-v5-template/internal/util"
+	"github.com/alex8obrien/flow/internal/util"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

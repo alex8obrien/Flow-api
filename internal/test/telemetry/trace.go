@@ -3,7 +3,7 @@ package telemetry
 import (
 	"context"
 
-	"github.com/alex8obrien/echo-v5-template/internal/telemetry"
+	"github.com/alex8obrien/flow/internal/telemetry"
 )
 
 type Tracer struct{}

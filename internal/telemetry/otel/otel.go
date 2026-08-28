@@ -1,7 +1,7 @@
 package otel
 
 import (
-	"github.com/alex8obrien/echo-v5-template/internal/telemetry"
+	"github.com/alex8obrien/flow/internal/telemetry"
 
 	echootel "github.com/labstack/echo-opentelemetry"
 	"github.com/labstack/echo/v5"

@@ -5,7 +5,7 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/alex8obrien/echo-v5-template/internal/util"
+	"github.com/alex8obrien/flow/internal/util"
 )
 
 type Link struct {

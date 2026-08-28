@@ -7,9 +7,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/alex8obrien/echo-v5-template/internal/controller"
-	"github.com/alex8obrien/echo-v5-template/internal/server"
-	"github.com/alex8obrien/echo-v5-template/internal/test/telemetry"
+	"github.com/alex8obrien/flow/internal/controller"
+	"github.com/alex8obrien/flow/internal/server"
+	"github.com/alex8obrien/flow/internal/test/telemetry"
 
 	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/assert"

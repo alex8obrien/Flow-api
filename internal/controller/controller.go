@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/alex8obrien/echo-v5-template/internal/telemetry"
+	"github.com/alex8obrien/flow/internal/telemetry"
 
 	"github.com/labstack/echo/v5"
 )

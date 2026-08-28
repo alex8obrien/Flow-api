@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/alex8obrien/echo-v5-template/internal/domain"
-	"github.com/alex8obrien/echo-v5-template/internal/telemetry"
+	"github.com/alex8obrien/flow/internal/domain"
+	"github.com/alex8obrien/flow/internal/telemetry"
 )
 
 type LinkService struct {

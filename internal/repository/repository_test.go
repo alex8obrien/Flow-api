@@ -7,10 +7,10 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/alex8obrien/echo-v5-template/internal/domain"
-	"github.com/alex8obrien/echo-v5-template/internal/repository"
-	"github.com/alex8obrien/echo-v5-template/internal/test/telemetry"
-	"github.com/alex8obrien/echo-v5-template/internal/util"
+	"github.com/alex8obrien/flow/internal/domain"
+	"github.com/alex8obrien/flow/internal/repository"
+	"github.com/alex8obrien/flow/internal/test/telemetry"
+	"github.com/alex8obrien/flow/internal/util"
 
 	"github.com/pashagolub/pgxmock/v5"
 	"github.com/stretchr/testify/assert"

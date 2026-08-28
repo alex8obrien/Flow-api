@@ -1,4 +1,4 @@
-module github.com/alex8obrien/echo-v5-template
+module github.com/alex8obrien/flow
 
 go 1.27.0
 
