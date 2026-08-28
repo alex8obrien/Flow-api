@@ -36,19 +36,12 @@ func TestHealthEndpoint(t *testing.T) {
 	assert.Empty(t, rec.Body)
 }
 
-func TestRequestEndpoint(t *testing.T) {
-	req := httptest.NewRequest(http.MethodGet, "/debug", nil)
-	rec := httptest.NewRecorder()
-	e.ServeHTTP(rec, req)
-
-	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.NotEmpty(t, rec.Body)
-}
-
-func TestRegisterEndpoint(t *testing.T) {
-	jsonBody := []byte(`{"name": "testuser", "email": "test@example.com"}`)
+func TestCreateEndpoint(t *testing.T) {
+	jsonBody := []byte(
+		`{"destination_url": "https://example.com", "display_name": "Example", "description": "My description"}`,
+	)
 	body := bytes.NewReader(jsonBody)
-	req := httptest.NewRequest(http.MethodPost, "/users", body)
+	req := httptest.NewRequest(http.MethodPost, "/links", body)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
@@ -57,10 +50,24 @@ func TestRegisterEndpoint(t *testing.T) {
 	assert.NotEmpty(t, rec.Body)
 }
 
-func TestRegisterEndpoint_UnprocessableEmail(t *testing.T) {
-	jsonBody := []byte(`{"name": "testuser", "email": "broken.com"}`)
+func TestCreateEndpoint_NullDescription(t *testing.T) {
+	jsonBody := []byte(
+		`{"destination_url": "https://example.com", "display_name": "Example"}`,
+	)
 	body := bytes.NewReader(jsonBody)
-	req := httptest.NewRequest(http.MethodPost, "/users", body)
+	req := httptest.NewRequest(http.MethodPost, "/links", body)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusCreated, rec.Code)
+	assert.NotEmpty(t, rec.Body)
+}
+
+func TestRegisterEndpoint_UnprocessableDestinationURL(t *testing.T) {
+	jsonBody := []byte(`{"destination_url": "https://", "display_name": "Example"}`)
+	body := bytes.NewReader(jsonBody)
+	req := httptest.NewRequest(http.MethodPost, "/links", body)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)

@@ -2,10 +2,12 @@ package controller
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/alex8obrien/echo-v5-template/internal/domain"
 )
 
-type UserService interface {
-	Register(ctx context.Context, name, email string) (*domain.User, error)
+type LinkService interface {
+	Create(ctx context.Context, destinationURL, displayName, description string) (*domain.Link, error)
+	Redirect(ctx context.Context, shortCode string) (*url.URL, error)
 }

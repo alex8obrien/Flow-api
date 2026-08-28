@@ -1,6 +1,7 @@
 package controller
 
-type CreateUserDTO struct {
-	Name  string `json:"name"  validate:"required"`
-	Email string `json:"email" validate:"required,email"`
+type CreateLinkDTO struct {
+	DestinationURL string `json:"destination_url" validate:"required,url"`
+	DisplayName    string `json:"display_name"    validate:"required"`
+	Description    string `json:"description"`
 }

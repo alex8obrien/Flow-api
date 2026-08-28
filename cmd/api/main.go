@@ -65,12 +65,12 @@ func run() error {
 	defer pool.Close()
 
 	// Setup application controler and server configuration
-	userRepoTracer := otelCfg.NewTracer("user-repository")
-	userServiceTracer := otelCfg.NewTracer("user-service")
-	userControllerTracer := otelCfg.NewTracer("user-controller")
-	userRepo := repository.NewUserRepository(pool, userRepoTracer)
-	userService := service.NewUserService(userRepo, userServiceTracer)
-	c := controller.NewController(userService, userControllerTracer)
+	linkRepoTracer := otelCfg.NewTracer("link-repository")
+	linkServiceTracer := otelCfg.NewTracer("link-service")
+	linkControllerTracer := otelCfg.NewTracer("link-controller")
+	r := repository.NewLinkRepository(pool, linkRepoTracer)
+	s := service.NewLinkService(r, linkServiceTracer)
+	c := controller.NewController(s, linkControllerTracer)
 	srv := server.Config{
 		OtelMiddleware: otel.Middleware(otelCfg),
 		Address:        os.Getenv(environment.Address),

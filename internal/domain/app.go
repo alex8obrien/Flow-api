@@ -1,4 +1,4 @@
 package domain
 
-// Version represents the app version
-const Version = "0.2.0"
+// Version sets the main application version.
+const Version = "0.1.0"

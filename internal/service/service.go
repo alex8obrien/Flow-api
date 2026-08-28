@@ -2,45 +2,80 @@ package service
 
 import (
 	"context"
+	"errors"
+	"net/url"
 
 	"github.com/alex8obrien/echo-v5-template/internal/domain"
 	"github.com/alex8obrien/echo-v5-template/internal/telemetry"
 )
 
-type UserService struct {
-	repo   UserRepository
+type LinkService struct {
+	repo   LinkRepository
 	tracer telemetry.Tracer
 }
 
-func NewUserService(repo UserRepository, tracer telemetry.Tracer) *UserService {
-	return &UserService{repo: repo, tracer: tracer}
+func NewLinkService(repo LinkRepository, tracer telemetry.Tracer) *LinkService {
+	return &LinkService{repo: repo, tracer: tracer}
 }
 
-func (srv *UserService) Register(ctx context.Context, name, email string) (*domain.User, error) {
-	ctx, span := srv.tracer.Start(ctx, "user.register", telemetry.String("user.email_domain", email))
+func (srv *LinkService) Create(
+	ctx context.Context,
+	destinationURL, displayName, description string,
+) (*domain.Link, error) {
+	ctx, span := srv.tracer.Start(ctx, "service.links.create")
 	defer span.End()
-	span.AddEvent("user.register.request_received")
+	span.AddEvent("service.links.create.request_received")
 
-	if email == "" {
-		span.AddEvent("user.register.validation_failed", telemetry.String("field", "email"))
-		span.RecordError(domain.ErrInvalidEmail)
-		span.SetStatus(telemetry.StatusError, domain.ErrInvalidEmail.Error())
-		return nil, domain.ErrInvalidEmail
+	// Build Link
+	link, err := domain.NewLink(destinationURL, displayName, description)
+	if err != nil {
+		span.AddEvent("service.links.create.validation_failed")
+		span.RecordError(err)
+		span.SetStatus(telemetry.StatusError, err.Error())
+		return nil, err
 	}
 
-	u := &domain.User{Name: name, Email: email}
-	span.AddEvent("user.register.repository_insert_start")
-
-	user, err := srv.repo.Insert(ctx, u)
+	link, err = srv.repo.Insert(ctx, link)
 	if err != nil {
 		span.RecordError(err)
-		span.AddEvent("user.register.repository_insert_failed")
+		span.AddEvent("service.links.create.repository_insert_failed")
 		span.SetStatus(telemetry.StatusError, "repository insert failed")
 		return nil, err
 	}
 
-	span.SetAttributes(telemetry.String("user.id", user.ID.String()))
-	span.SetStatus(telemetry.StatusSuccess, "user registered")
-	span.AddEvent("user.register.completed")
-	return user, nil
+	span.SetAttributes(telemetry.String("link.id", link.ID.String()))
+	span.SetStatus(telemetry.StatusSuccess, "link created")
+	span.AddEvent("service.links.create.completed")
+	return link, nil
+}
+
+func (srv *LinkService) Redirect(ctx context.Context, shortCode string) (*url.URL, error) {
+	ctx, span := srv.tracer.Start(ctx, "service.links.redirect")
+	defer span.End()
+	span.AddEvent("service.links.redirect.request_received")
+
+	if len(shortCode) != domain.ShortCodeMaximumLength {
+		span.SetStatus(telemetry.StatusError, "invalid id length")
+		span.AddEvent("service.links.redirect.invalid_id")
+		return nil, errors.New("invalid id")
+	}
+
+	link, err := srv.repo.FindByShortCode(ctx, shortCode)
+	if err != nil {
+		span.RecordError(err)
+		span.AddEvent("service.links.redirect.repository_find_failed")
+		span.SetStatus(telemetry.StatusError, "repository find failed")
+		return nil, err
+	}
+
+	// Build URL
+	url, err := url.Parse(link.DestinationURL)
+	if err != nil {
+		return nil, err
+	}
+
+	span.SetAttributes(telemetry.String("link.id", link.ID.String()))
+	span.SetStatus(telemetry.StatusSuccess, "link created")
+	span.AddEvent("service.links.create.completed")
+	return url, nil
 }

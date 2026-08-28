@@ -1,90 +1,69 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/alex8obrien/echo-v5-template/internal/domain"
 	"github.com/alex8obrien/echo-v5-template/internal/telemetry"
 
 	"github.com/labstack/echo/v5"
 )
 
-func (h *UserController) Health(c *echo.Context) error {
+func (ctrl *LinkController) Health(c *echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func (h *UserController) Create(c *echo.Context) error {
-	ctx, span := h.tracer.Start(c.Request().Context(), "controller.user.create")
+func (ctrl *LinkController) Create(c *echo.Context) error {
+	ctx, span := ctrl.tracer.Start(c.Request().Context(), "controller.links.create")
 	defer span.End()
-	span.AddEvent("controller.user.create.request_received")
+	span.AddEvent("controller.links.create.request_received")
 
-	var dto CreateUserDTO
+	var dto CreateLinkDTO
 	if err := c.Bind(&dto); err != nil {
 		span.RecordError(err)
 		span.SetStatus(telemetry.StatusError, "bind failed")
-		span.AddEvent("controller.user.create.bind_failed")
+		span.AddEvent("controller.links.create.bind_failed")
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
 	}
 
-	span.AddEvent("controller.user.create.bind_succeeded")
-	span.SetAttributes(telemetry.String("user.email_domain", dto.Email))
+	span.AddEvent("controller.links.create.bind_succeeded")
 
 	if err := c.Validate(&dto); err != nil {
 		span.RecordError(err)
 		span.SetStatus(telemetry.StatusError, "validate failed")
-		span.AddEvent("controller.user.create.validate_failed")
+		span.AddEvent("controller.links.create.validate_failed")
 		return err
 	}
 
-	span.AddEvent("controller.user.create.validate_succeeded")
-	user, err := h.uc.Register(ctx, dto.Name, dto.Email)
+	span.AddEvent("controller.links.create.validate_succeeded")
+	link, err := ctrl.srv.Create(ctx, dto.DestinationURL, dto.DisplayName, dto.Description)
 	if err != nil {
 		span.RecordError(err)
-		span.SetStatus(telemetry.StatusError, "register failed")
-		span.AddEvent("controller.user.create.register_failed")
+		span.SetStatus(telemetry.StatusError, "create failed")
+		span.AddEvent("controller.links.create.create_failed")
 		return err
 	}
 
-	span.SetAttributes(telemetry.String("user.id", user.ID.String()))
-	span.SetStatus(telemetry.StatusSuccess, "user created")
-	span.AddEvent("controller.user.create.completed")
-	return c.JSON(http.StatusCreated, user)
+	span.SetAttributes(telemetry.String("link.id", link.ID.String()))
+	span.SetStatus(telemetry.StatusSuccess, "link created")
+	span.AddEvent("controller.links.create.completed")
+	return c.JSON(http.StatusCreated, link)
 }
 
-func (h *UserController) Debug(c *echo.Context) error {
-	req := c.Request()
+func (ctrl *LinkController) Redirect(c *echo.Context) error {
+	ctx, span := ctrl.tracer.Start(c.Request().Context(), "controller.links.redirect")
+	defer span.End()
+	span.AddEvent("controller.links.redirect.request_received")
 
-	tlsInfo := "NO TLS"
-
-	if req.TLS != nil {
-		tlsInfo = fmt.Sprintf(
-			"TLS=%d, ALPN=%q",
-			req.TLS.Version,
-			req.TLS.NegotiatedProtocol,
-		)
+	id := c.Param("id")
+	link, err := ctrl.srv.Redirect(ctx, id)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(telemetry.StatusError, "redirect failed")
+		span.AddEvent("controller.links.redirect.redirect_failed")
+		return err
 	}
 
-	format := `
-    <code>
-      Version: %s<br>
-      Protocol: %s<br>
-      TLS: %s<br>
-      Host: %s<br>
-      Remote Address: %s<br>
-      Method: %s<br>
-      Path: %s<br>
-    </code>
-    `
-
-	return c.HTML(http.StatusOK, fmt.Sprintf(
-		format,
-		domain.Version,
-		req.Proto,
-		tlsInfo,
-		req.Host,
-		req.RemoteAddr,
-		req.Method,
-		req.URL.Path,
-	))
+	span.SetStatus(telemetry.StatusSuccess, "redirect started")
+	span.AddEvent("controller.links.redirect.completed")
+	return c.Redirect(http.StatusMovedPermanently, link.String())
 }

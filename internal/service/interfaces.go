@@ -6,7 +6,7 @@ import (
 	"github.com/alex8obrien/echo-v5-template/internal/domain"
 )
 
-type UserRepository interface {
-	// FindByID(ctx context.Context, id uuid.UUID) (*User, error)
-	Insert(ctx context.Context, user *domain.User) (*domain.User, error)
+type LinkRepository interface {
+	Insert(ctx context.Context, link *domain.Link) (*domain.Link, error)
+	FindByShortCode(ctx context.Context, shortCode string) (*domain.Link, error)
 }
