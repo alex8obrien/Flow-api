@@ -3,7 +3,7 @@ package otel
 import (
 	"github.com/alex8obrien/flow/internal/telemetry"
 
-	echootel "github.com/labstack/echo-opentelemetry"
+	echootel "github.com/labstack/echo-otel/v5"
 	"github.com/labstack/echo/v5"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
