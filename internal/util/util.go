@@ -90,11 +90,11 @@ func ValidateAndParseURL(rawURL string) (*url.URL, error) {
 	}
 
 	if u.Scheme != "https" {
-		return nil, fmt.Errorf("URL must use HTTPS")
+		return nil, fmt.Errorf("URL must use HTTPS. URL: %s", rawURL)
 	}
 
 	if u.Host == "" {
-		return nil, fmt.Errorf("URL must contain a host")
+		return nil, fmt.Errorf("URL must contain a host. URL: %s", rawURL)
 	}
 
 	return u, nil
