@@ -7,16 +7,17 @@ import (
 )
 
 type LinkController struct {
-	srv    LinkService
-	tracer telemetry.Tracer
+	srv      LinkService
+	tracer   telemetry.Tracer
+	authware echo.MiddlewareFunc
 }
 
-func NewController(srv LinkService, tracer telemetry.Tracer) *LinkController {
-	return &LinkController{srv: srv, tracer: tracer}
+func NewController(srv LinkService, tracer telemetry.Tracer, authware echo.MiddlewareFunc) *LinkController {
+	return &LinkController{srv: srv, tracer: tracer, authware: authware}
 }
 
 func (h *LinkController) Routes(e *echo.Echo) {
 	e.GET("/health", h.Health)
-	e.POST("/links", h.Create)
+	e.POST("/links", h.Create, h.authware)
 	e.GET("/:id", h.Redirect)
 }

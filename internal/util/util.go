@@ -3,6 +3,7 @@ package util
 import (
 	"crypto/rand"
 	"crypto/sha256"
+	"fmt"
 	"net/url"
 	"path"
 	"strings"
@@ -53,8 +54,8 @@ func GenerateShortCode(destinationURL string) (string, error) {
 //  5. Removes default ports
 //  6. Removes fragments
 func CanonicaliseURL(rawURL string) (string, error) {
-	// Initial URL parse
-	u, err := url.Parse(rawURL)
+	// Initial URL parse & Validation
+	u, err := ValidateAndParseURL(rawURL)
 	if err != nil {
 		return "", err
 	}
@@ -80,4 +81,26 @@ func CanonicaliseURL(rawURL string) (string, error) {
 	}
 
 	return u.String(), nil
+}
+
+func ValidateAndParseURL(rawURL string) (*url.URL, error) {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return nil, fmt.Errorf("invalid URL: %w", err)
+	}
+
+	if u.Scheme != "https" {
+		return nil, fmt.Errorf("URL must use HTTPS")
+	}
+
+	if u.Host == "" {
+		return nil, fmt.Errorf("URL must contain a host")
+	}
+
+	return u, nil
+}
+
+func ValidateURL(rawURL string) error {
+	_, err := ValidateAndParseURL(rawURL)
+	return err
 }

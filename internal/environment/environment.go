@@ -8,12 +8,15 @@ import (
 )
 
 const (
-	Address         = "ADDRESS"
-	CertFile        = "CERT_FILE"
-	KeyFile         = "KEY_FILE"
-	AllowOrigins    = "ALLOW_ORIGIN"
-	Dsn             = "POSTGRES_DSN"
-	ApplicationName = "APPLICATION_NAME"
+	Address          = "ADDRESS"
+	CertFile         = "CERT_FILE"
+	KeyFile          = "KEY_FILE"
+	AllowOrigins     = "ALLOW_ORIGIN"
+	Dsn              = "POSTGRES_DSN"
+	ApplicationName  = "APPLICATION_NAME"
+	JwtIssuerURL     = "JWT_ISSUER_URL"
+	JwksURL          = "JWKS_URL"
+	JwtSigningMethod = "JWT_SIGNING_METHOD"
 )
 
 const errMessage = "missing environment variable %s"
@@ -42,6 +45,15 @@ func InitEnv(path string) error {
 	}
 	if os.Getenv(ApplicationName) == "" {
 		return fmt.Errorf(errMessage, ApplicationName)
+	}
+	if os.Getenv(JwtIssuerURL) == "" {
+		return fmt.Errorf(errMessage, JwtIssuerURL)
+	}
+	if os.Getenv(JwksURL) == "" {
+		return fmt.Errorf(errMessage, JwksURL)
+	}
+	if os.Getenv(JwtSigningMethod) == "" {
+		return fmt.Errorf(errMessage, JwtSigningMethod)
 	}
 
 	return nil

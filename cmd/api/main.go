@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/alex8obrien/flow/internal/auth"
 	"github.com/alex8obrien/flow/internal/controller"
 	"github.com/alex8obrien/flow/internal/db"
 	"github.com/alex8obrien/flow/internal/environment"
@@ -68,9 +69,17 @@ func run() error {
 	linkRepoTracer := otelCfg.NewTracer("link-repository")
 	linkServiceTracer := otelCfg.NewTracer("link-service")
 	linkControllerTracer := otelCfg.NewTracer("link-controller")
+	verifier, err := auth.NewVerifier(ctx, auth.Config{
+		IssuerURL:     os.Getenv(environment.JwtIssuerURL),
+		JwksURL:       os.Getenv(environment.JwksURL),
+		SigningMethod: os.Getenv(environment.JwtSigningMethod),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to configure authentication: %w", err)
+	}
 	r := repository.NewLinkRepository(pool, linkRepoTracer)
 	s := service.NewLinkService(r, linkServiceTracer)
-	c := controller.NewController(s, linkControllerTracer)
+	c := controller.NewController(s, linkControllerTracer, server.AuthMiddleware(verifier))
 	srv := server.Config{
 		OtelMiddleware: otel.Middleware(otelCfg),
 		Address:        os.Getenv(environment.Address),

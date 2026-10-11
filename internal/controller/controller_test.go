@@ -20,9 +20,18 @@ var e *echo.Echo
 func TestMain(m *testing.M) {
 	e = echo.New()
 	e.Validator = server.NewCustomValidator()
-	controller := controller.NewController(NewMockService(), telemetry.NewTracer())
+	controller := controller.NewController(NewMockService(), telemetry.NewTracer(), testAuthMiddleware)
 	controller.Routes(e)
 	os.Exit(m.Run())
+}
+
+func testAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		if c.Request().Header.Get(echo.HeaderAuthorization) != "Bearer test-token" {
+			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
+		}
+		return next(c)
+	}
 }
 
 func TestHealthEndpoint(t *testing.T) {
@@ -41,6 +50,7 @@ func TestCreateEndpoint(t *testing.T) {
 	body := bytes.NewReader(jsonBody)
 	req := httptest.NewRequest(http.MethodPost, "/links", body)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(echo.HeaderAuthorization, "Bearer test-token")
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 
@@ -55,6 +65,7 @@ func TestCreateEndpoint_NullDescription(t *testing.T) {
 	body := bytes.NewReader(jsonBody)
 	req := httptest.NewRequest(http.MethodPost, "/links", body)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(echo.HeaderAuthorization, "Bearer test-token")
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 
@@ -67,9 +78,19 @@ func TestRegisterEndpoint_UnprocessableDestinationURL(t *testing.T) {
 	body := bytes.NewReader(jsonBody)
 	req := httptest.NewRequest(http.MethodPost, "/links", body)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(echo.HeaderAuthorization, "Bearer test-token")
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 
 	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 	assert.NotEmpty(t, rec.Body)
+}
+
+func TestCreateEndpoint_Unauthenticated(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/links", bytes.NewReader([]byte(`{}`)))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
