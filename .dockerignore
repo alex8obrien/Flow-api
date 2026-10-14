@@ -1,0 +1,9 @@
+.git
+.vscode
+.idea
+bin/
+dist/
+tmp/
+.env
+.env.*
+!.env.example

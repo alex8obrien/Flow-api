@@ -1,14 +1,19 @@
 # --- build stage ---
-FROM golang:1.27.0 AS build
+FROM golang:1.27.2 AS build
 WORKDIR /src
+
 COPY go.mod go.sum ./
 RUN go mod download
+
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /app ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /flow ./cmd/api
 
 # --- runtime stage ---
-FROM gcr.io/distroless/static-debian12:nonroot
-COPY --from=build /app /app
+FROM gcr.io/distroless/static-debian13:nonroot
+
+WORKDIR /app
+COPY --from=build /flow /app/flow
+
 USER nonroot:nonroot
 EXPOSE 8080
-ENTRYPOINT ["/app"]
+ENTRYPOINT ["/app/flow"]

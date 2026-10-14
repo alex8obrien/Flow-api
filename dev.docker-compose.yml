@@ -1,0 +1,13 @@
+services:
+  flow:
+    container_name: flow
+    build:
+      context: .
+      dockerfile: cmd/api/Dockerfile
+    image: flow
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./.env:/app/.env:ro
+      - ./certs:/certs:ro
+    restart: unless-stopped
