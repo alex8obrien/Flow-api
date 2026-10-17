@@ -6,4 +6,5 @@ dist/
 tmp/
 .env
 .env.*
-!.env.example
+docker-compose.yml
+*.docker-compose.yml

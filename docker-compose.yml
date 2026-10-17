@@ -1,0 +1,76 @@
+name: flow
+services:
+  api:
+    container_name: api
+    image: flow:dev
+    user: "10002:10002"
+    group_add:
+      - "985" 
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    volumes:
+      - /srv/api/config/.env:/app/.env:ro
+      - /etc/letsencrypt/live/a8ob.com:/certs:ro
+    tmpfs:
+      - /tmp
+      - /run
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8000/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  uptime-kuma:
+    container_name: uptime-kuma
+    image: louislam/uptime-kuma:2.5.6
+    user: "10003:10003"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    volumes:
+      - /srv/status/data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+
+  postgres:
+    container_name: postgres
+    image: postgres:18
+    user: "10001:10001"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    read_only: true
+    volumes:
+      - /srv/postgres/data:/var/lib/postgresql:rw
+    tmpfs:
+      - /tmp
+      - /run/postgresql
+    shm_size: 128mb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+secrets:
+  postgres_password:
+    file: /srv/postgres/secrets/postgres_password.txt

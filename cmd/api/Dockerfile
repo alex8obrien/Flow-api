@@ -15,5 +15,5 @@ WORKDIR /app
 COPY --from=build /flow /app/flow
 
 USER nonroot:nonroot
-EXPOSE 8080
+EXPOSE 8000
 ENTRYPOINT ["/app/flow"]
