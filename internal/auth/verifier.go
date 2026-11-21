@@ -17,12 +17,14 @@ type Config struct {
 	IssuerURL     string
 	JwksURL       string
 	SigningMethod string
+	AudienceURL   string
 }
 
 type Verifier struct {
-	issuer     string
-	keys       keyfunc.Keyfunc
-	signingKey string
+	issuer        string
+	keys          keyfunc.Keyfunc
+	signingMethod string
+	audience      string
 }
 
 func NewVerifier(ctx context.Context, cfg Config) (*Verifier, error) {
@@ -33,15 +35,19 @@ func NewVerifier(ctx context.Context, cfg Config) (*Verifier, error) {
 	if err := util.ValidateURL(cfg.JwksURL); err != nil {
 		return nil, fmt.Errorf("invalid JWKS URL: %w", err)
 	}
+	if err := util.ValidateURL(cfg.AudienceURL); err != nil {
+		return nil, fmt.Errorf("invalid JWKS URL: %w", err)
+	}
 	keys, err := keyfunc.NewDefaultCtx(ctx, []string{cfg.JwksURL})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create JWK: %w", err)
 	}
 
 	return &Verifier{
-		issuer:     cfg.IssuerURL,
-		keys:       keys,
-		signingKey: cfg.SigningMethod,
+		issuer:        cfg.IssuerURL,
+		keys:          keys,
+		signingMethod: cfg.SigningMethod,
+		audience:      cfg.AudienceURL,
 	}, nil
 }
 
@@ -57,10 +63,10 @@ func (v *Verifier) Verify(ctx context.Context, rawToken string) (*Claims, error)
 		return v.keys.KeyfuncCtx(ctx)(token)
 	},
 		jwt.WithIssuer(v.issuer),
-		jwt.WithValidMethods([]string{v.signingKey}),
+		jwt.WithValidMethods([]string{v.signingMethod}),
 		jwt.WithExpirationRequired(),
 		jwt.WithIssuedAt(),
-		jwt.WithValidMethods([]string{jwt.SigningMethodRS256.Alg()}),
+		jwt.WithAudience(v.audience),
 	)
 	if err != nil {
 		return nil, errInvalidToken

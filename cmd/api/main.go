@@ -73,6 +73,7 @@ func run() error {
 		IssuerURL:     os.Getenv(environment.JwtIssuerURL),
 		JwksURL:       os.Getenv(environment.JwksURL),
 		SigningMethod: os.Getenv(environment.JwtSigningMethod),
+		AudienceURL:   os.Getenv(environment.JwtAudience),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to configure authentication: %w", err)

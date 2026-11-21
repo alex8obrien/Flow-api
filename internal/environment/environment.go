@@ -17,6 +17,7 @@ const (
 	JwtIssuerURL     = "JWT_ISSUER_URL"
 	JwksURL          = "JWKS_URL"
 	JwtSigningMethod = "JWT_SIGNING_METHOD"
+	JwtAudience      = "JWT_AUDIENCE"
 )
 
 const errMessage = "missing environment variable %s"
@@ -54,6 +55,9 @@ func InitEnv(path string) error {
 	}
 	if os.Getenv(JwtSigningMethod) == "" {
 		return fmt.Errorf(errMessage, JwtSigningMethod)
+	}
+	if os.Getenv(JwtAudience) == "" {
+		return fmt.Errorf(errMessage, JwtAudience)
 	}
 
 	return nil
