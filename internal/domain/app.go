@@ -18,7 +18,15 @@ type Readyz struct {
 	db      Status
 }
 
-func (r Readyz) MarshalJSON() ([]byte, error) {
+func NewReadyz() *Readyz {
+	return &Readyz{
+		version: Version,
+		overall: DOWN,
+		db:      DOWN,
+	}
+}
+
+func (r *Readyz) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Version string `json:"version"`
 		Overall Status `json:"overall"`
@@ -30,17 +38,13 @@ func (r Readyz) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func NewReadyz() *Readyz {
-	return &Readyz{
-		version: Version,
-		overall: DOWN,
-		db:      DOWN,
-	}
-}
-
 func (r *Readyz) DBChecked() {
 	r.db = OK
 	r.determineOverallStatus()
+}
+
+func (r *Readyz) Overall() Status {
+	return r.overall
 }
 
 func (r *Readyz) determineOverallStatus() {
@@ -54,8 +58,4 @@ func (r *Readyz) determineOverallStatus() {
 
 	// Set overall result
 	r.overall = s
-}
-
-func (r *Readyz) Overall() Status {
-	return r.overall
 }

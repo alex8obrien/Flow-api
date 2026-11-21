@@ -16,7 +16,6 @@ formatters:
   enable:
     - gci # Correct import grouping
     - gofmt
-    - gofumpt # enforces a stricter format than 'gofmt', while being backwards compatible
     - golines # checks if code is formatted, and fixes long lines
 
   settings:
@@ -32,9 +31,6 @@ formatters:
 
     gofmt:
       simplify: false
-
-    gofumpt:
-      extra-rules: true
 
     golines:
       max-len: 120

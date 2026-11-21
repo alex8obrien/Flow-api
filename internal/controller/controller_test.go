@@ -66,7 +66,7 @@ func TestLivezEndpoint(t *testing.T) {
 			assert.Equal(t, test.expectedStatusCode, rec.Code)
 			if test.httpMethod == http.MethodGet {
 				assert.Empty(t, rec.Body.String())
-				assert.Equal(t, "", rec.Header().Get(echo.HeaderContentType))
+				assert.Empty(t, rec.Header().Get(echo.HeaderContentType))
 			}
 		})
 	}

@@ -25,7 +25,7 @@ func (srv *LinkService) Health(ctx context.Context) domain.Readyz {
 
 	// Define responses, assumes a negative state
 	r := domain.NewReadyz()
-	s := telemetry.StatusUnset
+	var s telemetry.Status
 
 	// Ping Database
 	err := srv.repo.Ping(ctx)

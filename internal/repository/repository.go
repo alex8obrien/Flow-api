@@ -3,17 +3,18 @@ package repository
 import (
 	"context"
 	"time"
+	"uuid"
 
 	"github.com/alex8obrien/flow/internal/domain"
 	"github.com/alex8obrien/flow/internal/telemetry"
-
-	"uuid"
 )
 
 type LinkRepository struct {
 	db     DB
 	tracer telemetry.Tracer
 }
+
+const pingTimeout = 2 * time.Second
 
 func NewLinkRepository(db DB, tracer telemetry.Tracer) LinkRepository {
 	return LinkRepository{db: db, tracer: tracer}
@@ -27,7 +28,7 @@ func (r LinkRepository) Ping(ctx context.Context) error {
 	defer span.End()
 	span.AddEvent("db.links.ping.query_start")
 
-	c, cancel := context.WithTimeout(ctx, 2*time.Second)
+	c, cancel := context.WithTimeout(ctx, pingTimeout)
 	defer cancel()
 
 	err := r.db.Ping(c)
