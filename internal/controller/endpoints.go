@@ -3,13 +3,31 @@ package controller
 import (
 	"net/http"
 
+	"github.com/alex8obrien/flow/internal/domain"
 	"github.com/alex8obrien/flow/internal/telemetry"
 
 	"github.com/labstack/echo/v5"
 )
 
-func (ctrl *LinkController) Health(c *echo.Context) error {
+func (ctrl *LinkController) Livez(c *echo.Context) error {
 	return c.NoContent(http.StatusOK)
+}
+
+func (ctrl *LinkController) Readyz(c *echo.Context) error {
+	ctx, span := ctrl.tracer.Start(c.Request().Context(), "controller.links.readyz")
+	defer span.End()
+	span.AddEvent("controller.links.readyz.request_received")
+
+	r := ctrl.srv.Health(ctx)
+
+	// Define response
+	code := http.StatusOK
+	if r.Overall() != domain.OK {
+		code = http.StatusServiceUnavailable
+	}
+
+	// Return response
+	return c.JSON(code, r)
 }
 
 func (ctrl *LinkController) Create(c *echo.Context) error {

@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/keys-pub/keys/encoding"
+	"github.com/alex8obrien/base62"
 )
 
 func RandomShortCode() string {
@@ -17,7 +17,7 @@ func RandomShortCode() string {
 
 	// Compute SHA-256 hash and return as Base 62
 	sum := sha256.Sum256([]byte(str))
-	return encoding.EncodeBase62(sum[:])
+	return base62.EncodeToString(sum[:])
 }
 
 func GenerateTruncatedShortCode(destinationURL string, length int) (string, error) {
@@ -41,7 +41,7 @@ func GenerateShortCode(destinationURL string) (string, error) {
 	sum := sha256.Sum256([]byte(u))
 
 	// Base 62 Encode
-	str := encoding.EncodeBase62(sum[:])
+	str := base62.EncodeToString(sum[:])
 	return str, nil
 }
 

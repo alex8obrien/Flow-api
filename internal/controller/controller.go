@@ -17,7 +17,8 @@ func NewController(srv LinkService, tracer telemetry.Tracer, authware echo.Middl
 }
 
 func (h *LinkController) Routes(e *echo.Echo) {
-	e.GET("/health", h.Health)
+	e.GET("/livez", h.Livez)
+	e.GET("/readyz", h.Readyz)
 	e.POST("/links", h.Create, h.authware)
 	e.GET("/:id", h.Redirect)
 }

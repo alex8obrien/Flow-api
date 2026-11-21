@@ -10,10 +10,18 @@ import (
 	"github.com/alex8obrien/flow/internal/util"
 )
 
-type MockService struct{}
+type MockService struct {
+	readyz domain.Readyz
+}
 
 func NewMockService() MockService {
-	return MockService{}
+	r := domain.NewReadyz()
+	r.DBChecked()
+	return MockService{readyz: *r}
+}
+
+func (srv MockService) Health(_ context.Context) domain.Readyz {
+	return srv.readyz
 }
 
 func (srv MockService) Create(

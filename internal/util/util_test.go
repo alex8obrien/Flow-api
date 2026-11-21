@@ -51,17 +51,17 @@ func TestUtil_GenerateShortCode(t *testing.T) {
 		{
 			"Google",
 			"https://google.com",
-			"1BlRRSRMNECq2ZS4JeLoum3uucxjLDREag7BkRr8sGb",
+			"NOJoH5uzNXHfrpIr8gVSELaoHbVXWt7ZRkRfgsJvRQB",
 		},
 		{
 			"Amazon",
 			"https://amazon.com",
-			"odCsksaz581Vz3QaL9FfMVKtiTpjg99JI7f3uj7s9Sz",
+			"JzIc60Uk5GpcCvxqDVtorhqOrv3Ud5HwilpmqHkWFWN",
 		},
 		{
 			"alex8obrien",
 			"https://alex8obrien.com",
-			"xx85qSHTwVjvohfIl1UDDyEwfGBfnto65XQz3uiUWes",
+			"21PWpJlA9Ul58CtpfDyzLDQiL34eYIGPjyCJvI5pRNfB",
 		},
 	}
 

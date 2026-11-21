@@ -3,10 +3,11 @@ package repository
 import (
 	"context"
 	"time"
-	"uuid"
 
 	"github.com/alex8obrien/flow/internal/domain"
 	"github.com/alex8obrien/flow/internal/telemetry"
+
+	"uuid"
 )
 
 type LinkRepository struct {
@@ -16,6 +17,31 @@ type LinkRepository struct {
 
 func NewLinkRepository(db DB, tracer telemetry.Tracer) LinkRepository {
 	return LinkRepository{db: db, tracer: tracer}
+}
+
+func (r LinkRepository) Ping(ctx context.Context) error {
+	ctx, span := r.tracer.Start(ctx, "db.links.ping",
+		telemetry.String("db.system", "postgresql"),
+		telemetry.String("db.operation", "PING"),
+	)
+	defer span.End()
+	span.AddEvent("db.links.ping.query_start")
+
+	c, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+
+	err := r.db.Ping(c)
+	if err != nil {
+		span.RecordError(err)
+		span.AddEvent("db.links.ping.query_failed")
+		span.SetStatus(telemetry.StatusError, "ping failed")
+		return err
+	}
+
+	span.SetStatus(telemetry.StatusSuccess, "ping completed")
+	span.AddEvent("db.links.ping.query_completed")
+
+	return nil
 }
 
 func (r LinkRepository) Insert(ctx context.Context, link *domain.Link) (*domain.Link, error) {
