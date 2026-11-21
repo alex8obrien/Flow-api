@@ -18,14 +18,13 @@ func NewLinkService(repo LinkRepository, tracer telemetry.Tracer) *LinkService {
 	return &LinkService{repo: repo, tracer: tracer}
 }
 
-func (srv *LinkService) Health(ctx context.Context) domain.Readyz {
+func (srv *LinkService) Health(ctx context.Context) *domain.Readyz {
 	ctx, span := srv.tracer.Start(ctx, "service.links.health")
 	defer span.End()
 	span.AddEvent("service.links.health.request_received")
 
 	// Define responses, assumes a negative state
 	r := domain.NewReadyz()
-	var s telemetry.Status
 
 	// Ping Database
 	err := srv.repo.Ping(ctx)
@@ -37,14 +36,13 @@ func (srv *LinkService) Health(ctx context.Context) domain.Readyz {
 	}
 
 	if r.Overall() == domain.OK {
-		s = telemetry.StatusSuccess
+		span.SetStatus(telemetry.StatusSuccess, "health check succeeded")
 	} else {
-		s = telemetry.StatusError
+		span.SetStatus(telemetry.StatusError, "health check failed")
 	}
 
 	span.AddEvent("service.links.health.completed")
-	span.SetStatus(s, "health check succeeded")
-	return *r
+	return r
 }
 
 func (srv *LinkService) Create(

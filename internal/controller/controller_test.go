@@ -37,7 +37,7 @@ func testAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func newReadyzTestEcho(readyz domain.Readyz) *echo.Echo {
+func newReadyzTestEcho(readyz *domain.Readyz) *echo.Echo {
 	testEcho := echo.New()
 	controller.NewController(
 		MockService{readyz: readyz},
@@ -75,17 +75,17 @@ func TestLivezEndpoint(t *testing.T) {
 func TestReadyzEndpoint(t *testing.T) {
 	tests := []struct {
 		name               string
-		readyz             domain.Readyz
+		readyz             *domain.Readyz
 		expectedStatusCode int
 		expectedOverall    string
 		expectedDB         string
 	}{
 		{
 			name: "healthy",
-			readyz: func() domain.Readyz {
+			readyz: func() *domain.Readyz {
 				r := domain.NewReadyz()
 				r.DBChecked()
-				return *r
+				return r
 			}(),
 			expectedStatusCode: http.StatusOK,
 			expectedOverall:    "ok",
@@ -93,7 +93,7 @@ func TestReadyzEndpoint(t *testing.T) {
 		},
 		{
 			name:               "database unavailable",
-			readyz:             *domain.NewReadyz(),
+			readyz:             domain.NewReadyz(),
 			expectedStatusCode: http.StatusServiceUnavailable,
 			expectedOverall:    "down",
 			expectedDB:         "down",

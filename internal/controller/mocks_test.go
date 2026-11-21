@@ -11,16 +11,16 @@ import (
 )
 
 type MockService struct {
-	readyz domain.Readyz
+	readyz *domain.Readyz
 }
 
 func NewMockService() MockService {
 	r := domain.NewReadyz()
 	r.DBChecked()
-	return MockService{readyz: *r}
+	return MockService{readyz: r}
 }
 
-func (srv MockService) Health(_ context.Context) domain.Readyz {
+func (srv MockService) Health(_ context.Context) *domain.Readyz {
 	return srv.readyz
 }
 
