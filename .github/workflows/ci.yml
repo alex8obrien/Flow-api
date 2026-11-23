@@ -2,6 +2,12 @@ name: Build & Test
 
 on:
   push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
   build-test:
@@ -9,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v7
 
       - name: Set up Go
@@ -19,21 +25,20 @@ jobs:
           cache-dependency-path: ./go.sum
 
       - name: Install dependencies
-        run: go mod download & go mod verify
+        run: go mod download && go mod verify
 
       - name: Build
         run: go build ./...
 
       - name: Coverage Testing
-        run: go test --cover ./...
+        run: go test --race --cover ./...
 
   analysis:
     name: Lint & Scanning
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v7
 
       - name: Set up Go
