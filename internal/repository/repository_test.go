@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"testing"
 	"time"
-	"uuid"
 
 	"github.com/alex8obrien/flow/internal/domain"
 	"github.com/alex8obrien/flow/internal/repository"
@@ -15,6 +14,7 @@ import (
 	"github.com/pashagolub/pgxmock/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"uuid"
 )
 
 var Pool pgxmock.PgxPoolIface
@@ -30,7 +30,7 @@ func TestMain(m *testing.M) {
 	}
 }
 
-func TestUserRepository_Insert(t *testing.T) {
+func TestInsert(t *testing.T) {
 	expectedID := uuid.NewV7()
 	query := "INSERT INTO links (short_code, destination_url, display_name, description) VALUES ($1, $2, $3, $4) RETURNING id, clicks, created_at;"
 	shortCode, err := util.GenerateTruncatedShortCode("https://google.com", domain.ShortCodeMaximumLength)
@@ -53,7 +53,7 @@ func TestUserRepository_Insert(t *testing.T) {
 	require.NoError(t, Pool.ExpectationsWereMet())
 }
 
-func TestUserRepository_Insert_ContextCancelled(t *testing.T) {
+func TestInsert_ContextCancelled(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 

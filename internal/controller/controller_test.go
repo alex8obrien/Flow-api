@@ -150,7 +150,7 @@ func TestCreateEndpoint_NullDescription(t *testing.T) {
 	assert.NotEmpty(t, rec.Body)
 }
 
-func TestRegisterEndpoint_UnprocessableDestinationURL(t *testing.T) {
+func TestCreateEndpoint_UnprocessableDestinationURL(t *testing.T) {
 	jsonBody := []byte(`{"destination_url": "https://", "display_name": "Example"}`)
 	body := bytes.NewReader(jsonBody)
 	req := httptest.NewRequest(http.MethodPost, "/links", body)

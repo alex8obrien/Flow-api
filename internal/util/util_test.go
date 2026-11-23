@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestUtil_CanonicaliseURL(t *testing.T) {
+func TestCanonicaliseURL(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
@@ -42,7 +42,7 @@ func TestUtil_CanonicaliseURL(t *testing.T) {
 	}
 }
 
-func TestUtil_GenerateShortCode(t *testing.T) {
+func TestGenerateShortCode(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
