@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 	"time"
 	"uuid"
 
@@ -19,11 +20,23 @@ type Link struct {
 	DeletedAt      time.Time
 }
 
+const ShortCodeMaximumLength = 8
+
+var (
+	ErrInvalidDestinationURL = errors.New("invalid destination url")
+	ErrInvalidDisplayName    = errors.New("invalid display name")
+)
+
 func NewLink(destinationURL, displayName, description string) (*Link, error) {
 	// Validate destination URL
 	url, err := util.CanonicaliseURL(destinationURL)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %w", ErrInvalidDestinationURL, err)
+	}
+
+	// Check for display name
+	if displayName == "" {
+		return nil, ErrInvalidDisplayName
 	}
 
 	// Generate short code
@@ -33,16 +46,10 @@ func NewLink(destinationURL, displayName, description string) (*Link, error) {
 	}
 
 	return &Link{
+		ID:             uuid.Nil(),
 		ShortCode:      code,
 		DestinationURL: url,
 		DisplayName:    displayName,
 		Description:    description,
 	}, nil
 }
-
-var (
-	ErrInvalidDestinationURL = errors.New("invalid destination url")
-	ErrInvalidDisplayName    = errors.New("invalid display name")
-)
-
-const ShortCodeMaximumLength = 8

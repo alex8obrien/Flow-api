@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 	"time"
+	"uuid"
 
 	"github.com/alex8obrien/flow/internal/domain"
 	"github.com/alex8obrien/flow/internal/repository"
@@ -14,7 +15,6 @@ import (
 	"github.com/pashagolub/pgxmock/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"uuid"
 )
 
 var Pool pgxmock.PgxPoolIface

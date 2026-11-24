@@ -14,11 +14,11 @@ type LinkService struct {
 	tracer telemetry.Tracer
 }
 
-func NewLinkService(repo LinkRepository, tracer telemetry.Tracer) *LinkService {
-	return &LinkService{repo: repo, tracer: tracer}
+func NewLinkService(repo LinkRepository, tracer telemetry.Tracer) LinkService {
+	return LinkService{repo: repo, tracer: tracer}
 }
 
-func (srv *LinkService) Health(ctx context.Context) *domain.Readyz {
+func (srv LinkService) Health(ctx context.Context) *domain.Readyz {
 	ctx, span := srv.tracer.Start(ctx, "service.links.health")
 	defer span.End()
 	span.AddEvent("service.links.health.request_received")
@@ -45,7 +45,7 @@ func (srv *LinkService) Health(ctx context.Context) *domain.Readyz {
 	return r
 }
 
-func (srv *LinkService) Create(
+func (srv LinkService) Create(
 	ctx context.Context,
 	destinationURL, displayName, description string,
 ) (*domain.Link, error) {
@@ -76,7 +76,7 @@ func (srv *LinkService) Create(
 	return link, nil
 }
 
-func (srv *LinkService) Redirect(ctx context.Context, shortCode string) (*url.URL, error) {
+func (srv LinkService) Redirect(ctx context.Context, shortCode string) (*url.URL, error) {
 	ctx, span := srv.tracer.Start(ctx, "service.links.redirect")
 	defer span.End()
 	span.AddEvent("service.links.redirect.request_received")

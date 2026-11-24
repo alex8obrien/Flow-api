@@ -1,6 +1,7 @@
 package server_test
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 
@@ -43,9 +44,9 @@ func TestCustomValidator_InvalidStruct(t *testing.T) {
 			validator := server.NewCustomValidator()
 
 			err := validator.Validate(test.fixture)
-
 			require.Error(t, err)
-			httpError, ok := err.(*echo.HTTPError)
+
+			httpError, ok := errors.AsType[*echo.HTTPError](err)
 			require.True(t, ok)
 			assert.Equal(t, http.StatusUnprocessableEntity, httpError.Code)
 		})
