@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -11,9 +12,16 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var errInvalidToken = errors.New("invalid token")
+var ErrInvalidToken = errors.New("invalid token")
 
-type Config struct {
+type LocalConfig struct {
+	IssuerURL     string
+	RawJWK        json.RawMessage
+	SigningMethod string
+	AudienceURL   string
+}
+
+type RemoteConfig struct {
 	IssuerURL     string
 	JwksURL       string
 	SigningMethod string
@@ -27,7 +35,28 @@ type Verifier struct {
 	audience      string
 }
 
-func NewVerifier(ctx context.Context, cfg Config) (*Verifier, error) {
+func NewLocalResolver(cfg LocalConfig) (*Verifier, error) {
+	// Validate input
+	if err := util.ValidateURL(cfg.IssuerURL); err != nil {
+		return nil, fmt.Errorf("invalid issuer URL: %w", err)
+	}
+	if err := util.ValidateURL(cfg.AudienceURL); err != nil {
+		return nil, fmt.Errorf("invalid audience URL: %w", err)
+	}
+	keys, err := keyfunc.NewJWKSetJSON(cfg.RawJWK)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create JWK: %w", err)
+	}
+
+	return &Verifier{
+		issuer:        cfg.IssuerURL,
+		keys:          keys,
+		signingMethod: cfg.SigningMethod,
+		audience:      cfg.AudienceURL,
+	}, nil
+}
+
+func NewRemoteVerifier(ctx context.Context, cfg RemoteConfig) (*Verifier, error) {
 	// Validate input
 	if err := util.ValidateURL(cfg.IssuerURL); err != nil {
 		return nil, fmt.Errorf("invalid issuer URL: %w", err)
@@ -36,7 +65,7 @@ func NewVerifier(ctx context.Context, cfg Config) (*Verifier, error) {
 		return nil, fmt.Errorf("invalid JWKS URL: %w", err)
 	}
 	if err := util.ValidateURL(cfg.AudienceURL); err != nil {
-		return nil, fmt.Errorf("invalid JWKS URL: %w", err)
+		return nil, fmt.Errorf("invalid audience URL: %w", err)
 	}
 	keys, err := keyfunc.NewDefaultCtx(ctx, []string{cfg.JwksURL})
 	if err != nil {
@@ -54,7 +83,7 @@ func NewVerifier(ctx context.Context, cfg Config) (*Verifier, error) {
 func (v *Verifier) Verify(ctx context.Context, rawToken string) (*Claims, error) {
 	// 0. Validate data input
 	if rawToken == "" {
-		return nil, errInvalidToken
+		return nil, ErrInvalidToken
 	}
 	claims := &Claims{}
 
@@ -69,12 +98,12 @@ func (v *Verifier) Verify(ctx context.Context, rawToken string) (*Claims, error)
 		jwt.WithAudience(v.audience),
 	)
 	if err != nil {
-		return nil, errInvalidToken
+		return nil, ErrInvalidToken
 	}
 
 	// 2. Check if the token is valid
-	if !token.Valid || claims.Subject == "" {
-		return nil, errInvalidToken
+	if !token.Valid || claims.Subject == "" || claims.IssuedAt == nil {
+		return nil, ErrInvalidToken
 	}
 
 	// 3. Return claims

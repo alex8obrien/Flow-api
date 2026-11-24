@@ -69,7 +69,7 @@ func run() error {
 	linkRepoTracer := otelCfg.NewTracer("link-repository")
 	linkServiceTracer := otelCfg.NewTracer("link-service")
 	linkControllerTracer := otelCfg.NewTracer("link-controller")
-	verifier, err := auth.NewVerifier(ctx, auth.Config{
+	verifier, err := auth.NewRemoteVerifier(ctx, auth.RemoteConfig{
 		IssuerURL:     os.Getenv(environment.JwtIssuerURL),
 		JwksURL:       os.Getenv(environment.JwksURL),
 		SigningMethod: os.Getenv(environment.JwtSigningMethod),
